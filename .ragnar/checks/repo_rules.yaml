@@ -1,5 +1,6 @@
 # .ragnar/checks/repo_rules.yaml — Rule Definitions for check_repo_rules.py
 # อ่านโดย scripts/check_repo_rules.py
+# ใช้ flat keys (trigger_files, require_files) เพื่อรองรับ stdlib YAML parser
 
 version: "1"
 
@@ -7,62 +8,44 @@ rules:
 
   - id: changelog_entry_required
     severity: warn
-    description: "เมื่อ app code หรือ pack เปลี่ยน ต้องมี CHANGELOG entry"
-    trigger:
-      changed_files:
-        - "app/**"
-        - "packs/**"
-        - "src/**"
-    require:
-      changed_files:
-        - "docs/CHANGELOG.md"
-    message: |
-      พบการเปลี่ยนแปลงใน app/packs code แต่ docs/CHANGELOG.md ยังไม่ได้ update
-      กรุณาเพิ่ม entry ใน docs/CHANGELOG.md
-      ใช้ template: .ragnar/templates/changelog-entry.md
+    description: เมื่อ app code หรือ pack เปลี่ยน ต้องมี CHANGELOG entry
+    trigger_files:
+      - "app/**"
+      - "packs/**"
+      - "src/**"
+    require_files:
+      - "docs/CHANGELOG.md"
+    message: "พบการเปลี่ยนแปลงใน app/packs code แต่ docs/CHANGELOG.md ยังไม่ได้ update — กรุณาเพิ่ม entry ใน docs/CHANGELOG.md (template: .ragnar/templates/changelog-entry.md)"
 
   - id: runbook_update_required
     severity: warn
-    description: "เมื่อ Dockerfile หรือ docker-compose เปลี่ยน ต้อง update RUNBOOK"
-    trigger:
-      changed_files:
-        - "Dockerfile"
-        - "*/Dockerfile"
-        - "docker-compose*.yml"
-        - "docker-compose*.yaml"
-    require:
-      changed_files:
-        - "docs/RUNBOOK.md"
-    message: |
-      พบการเปลี่ยนแปลงใน Dockerfile/docker-compose แต่ docs/RUNBOOK.md ยังไม่ได้ update
-      กรุณา review และ update docs/RUNBOOK.md
-      ใช้ template: .ragnar/templates/runbook-update.md
+    description: เมื่อ Dockerfile หรือ docker-compose เปลี่ยน ต้อง update RUNBOOK
+    trigger_files:
+      - "Dockerfile"
+      - "*/Dockerfile"
+      - "docker-compose*.yml"
+      - "docker-compose*.yaml"
+    require_files:
+      - "docs/RUNBOOK.md"
+    message: "พบการเปลี่ยนแปลงใน Dockerfile/docker-compose แต่ docs/RUNBOOK.md ยังไม่ได้ update — กรุณา review และ update docs/RUNBOOK.md"
 
   - id: env_example_updated
     severity: warn
-    description: "เมื่อ code ใช้ env var ใหม่ ต้อง update .env.example"
-    trigger:
-      changed_files:
-        - "app/**"
-        - "packs/**"
-        - "src/**"
-      content_pattern: "os\\.environ|os\\.getenv|load_dotenv"
-    require:
-      changed_files:
-        - ".env.example"
-    message: |
-      พบการใช้ environment variables ใน code แต่ .env.example ยังไม่ได้ update
-      กรุณาเพิ่ม env var ใหม่ใน .env.example พร้อม placeholder และ comment
+    description: เมื่อ code ใช้ env var ใหม่ ต้อง update .env.example
+    trigger_files:
+      - "app/**"
+      - "packs/**"
+      - "src/**"
+    content_pattern: "os\\.environ|os\\.getenv|load_dotenv"
+    require_files:
+      - ".env.example"
+    message: "พบการใช้ environment variables ใน code แต่ .env.example ยังไม่ได้ update — กรุณาเพิ่ม env var ใหม่ใน .env.example พร้อม placeholder และ comment"
 
   - id: decision_record_required
     severity: warn
-    description: "เมื่อ ARCHITECTURE.md เปลี่ยน ต้องมี ADR"
-    trigger:
-      changed_files:
-        - "docs/ARCHITECTURE.md"
-    require:
-      changed_files:
-        - "docs/DECISIONS/*.md"
-    message: |
-      พบการเปลี่ยนแปลงใน docs/ARCHITECTURE.md แต่ยังไม่มี ADR ใหม่ใน docs/DECISIONS/
-      กรุณาสร้าง Decision Record โดยใช้ template: .ragnar/templates/decision.md
+    description: เมื่อ ARCHITECTURE.md เปลี่ยน ต้องมี ADR
+    trigger_files:
+      - "docs/ARCHITECTURE.md"
+    require_files:
+      - "docs/DECISIONS/*.md"
+    message: "พบการเปลี่ยนแปลงใน docs/ARCHITECTURE.md แต่ยังไม่มี ADR ใหม่ใน docs/DECISIONS/ — กรุณาสร้าง Decision Record (template: .ragnar/templates/decision.md)"

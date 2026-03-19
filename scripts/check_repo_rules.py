@@ -233,19 +233,15 @@ def check_rule(
     rule_id = rule.get("id", "unknown")
     message = rule.get("message", f"Rule '{rule_id}' violated")
 
-    # ดึง trigger patterns
-    trigger_files: list[str] = []
-    for key, val in rule.items():
-        if key == "trigger.changed_files":
-            trigger_files = val if isinstance(val, list) else [val]
+    # ดึง trigger patterns (flat keys: trigger_files, content_pattern)
+    raw_trigger = rule.get("trigger_files", [])
+    trigger_files: list[str] = raw_trigger if isinstance(raw_trigger, list) else [raw_trigger]
 
-    content_pattern: str = rule.get("trigger.content_pattern", "")
+    content_pattern: str = rule.get("content_pattern", "") or ""
 
-    # ดึง require patterns
-    require_files: list[str] = []
-    for key, val in rule.items():
-        if key == "require.changed_files":
-            require_files = val if isinstance(val, list) else [val]
+    # ดึง require patterns (flat key: require_files)
+    raw_require = rule.get("require_files", [])
+    require_files: list[str] = raw_require if isinstance(raw_require, list) else [raw_require]
 
     if not trigger_files:
         return True, ""
