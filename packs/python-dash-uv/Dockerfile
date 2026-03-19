@@ -19,6 +19,8 @@ WORKDIR /app
 # Copy project files สำหรับ dependency resolution
 COPY pyproject.toml .
 COPY .python-version .
+COPY uv.lock .
+COPY README.md .
 
 # Install dependencies (ไม่รวม dev dependencies)
 RUN uv sync --frozen --no-dev
