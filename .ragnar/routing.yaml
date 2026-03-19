@@ -1,0 +1,112 @@
+# .ragnar/routing.yaml — Task-Type → Doc Routing
+# หัวใจของระบบ: บอก AI ว่าต้องอ่านอะไรก่อน และ update อะไรหลังงานเสร็จ
+#
+# AI Agent: ดู task type ของงานที่กำลังทำ → อ่าน docs ใน "read" ก่อน → update docs ใน "update" หลังเสร็จ
+
+version: "1"
+
+task_types:
+
+  feature:
+    description: "งาน feature ใหม่หรือ enhancement"
+    read:
+      - docs/AI_CONTEXT.md          # อ่านก่อนเสมอ
+      - docs/PRD.md                  # เข้าใจ product requirements
+      - docs/ARCHITECTURE.md         # เข้าใจ architecture ปัจจุบัน
+      - docs/CHANGELOG.md            # ดู recent changes
+    update:
+      - docs/CHANGELOG.md            # เพิ่ม entry สำหรับ feature ใหม่
+    check:
+      - changelog_entry_required
+    prompts:
+      - docs/PROMPTS/feature.md
+    notes: |
+      ก่อนเริ่ม feature ใหม่: ตรวจสอบว่า feature นี้ align กับ PRD
+      และไม่ conflict กับ architecture ที่มีอยู่
+
+  bugfix:
+    description: "งาน fix bugs หรือ issues"
+    read:
+      - docs/AI_CONTEXT.md
+      - docs/RUNBOOK.md              # มักมี troubleshooting guide
+      - docs/CHANGELOG.md            # ดู recent changes ที่อาจ cause bug
+    update:
+      - docs/CHANGELOG.md            # เพิ่ม fix entry
+    check:
+      - changelog_entry_required
+    prompts:
+      - docs/PROMPTS/debug.md
+    notes: |
+      ระบุ root cause ก่อน fix เสมอ
+      ถ้า bug เกิดจาก infrastructure: อ่าน RUNBOOK ด้วย
+
+  refactor:
+    description: "งาน refactor โดยไม่เปลี่ยน behavior"
+    read:
+      - docs/AI_CONTEXT.md
+      - docs/ARCHITECTURE.md         # เข้าใจ design intent
+    update:
+      - docs/CHANGELOG.md            # เพิ่ม refactor entry
+    check:
+      - changelog_entry_required
+    prompts:
+      - docs/PROMPTS/refactor.md
+    notes: |
+      Refactor ต้องไม่เปลี่ยน external behavior
+      ถ้าต้องเปลี่ยน architecture: เปลี่ยน task type เป็น "architecture"
+
+  architecture:
+    description: "งานที่เปลี่ยน system architecture หรือ design decisions"
+    read:
+      - docs/AI_CONTEXT.md
+      - docs/ARCHITECTURE.md
+      - docs/DECISIONS/              # อ่าน ADRs ทั้งหมด
+      - docs/PRD.md
+    update:
+      - docs/ARCHITECTURE.md         # อัพเดต architecture description
+      - docs/DECISIONS/              # เพิ่ม ADR ใหม่ (ใช้ template)
+      - docs/CHANGELOG.md
+    check:
+      - decision_record_required
+      - changelog_entry_required
+    template: .ragnar/templates/decision.md
+    notes: |
+      ทุก architecture change ต้องมี ADR (Architecture Decision Record)
+      ใช้ template ที่ .ragnar/templates/decision.md
+
+  infrastructure:
+    description: "งานที่เกี่ยวกับ Docker, CI/CD, deployment, environment"
+    read:
+      - docs/AI_CONTEXT.md
+      - docs/RUNBOOK.md              # operations guide
+      - docs/ARCHITECTURE.md
+    update:
+      - docs/RUNBOOK.md              # อัพเดต operations procedures
+      - docs/CHANGELOG.md
+    check:
+      - runbook_update_required
+      - changelog_entry_required
+    notes: |
+      Dockerfile หรือ docker-compose changes: ต้อง update RUNBOOK เสมอ
+      Environment changes: ต้อง update .env.example ด้วย
+
+  env_change:
+    description: "งานที่เพิ่ม/เปลี่ยน environment variables"
+    read:
+      - docs/AI_CONTEXT.md
+      - .env.example                 # ดู current env vars
+    update:
+      - .env.example                 # เพิ่ม/update env var documentation
+    check:
+      - env_example_updated
+    notes: |
+      ทุกครั้งที่เพิ่ม os.environ หรือ os.getenv ใน code
+      ต้อง update .env.example เสมอ — ห้าม hardcode secrets
+
+# Default routing ถ้าไม่รู้ task type
+default:
+  read:
+    - docs/AI_CONTEXT.md
+  update: []
+  check: []
+  notes: "ถ้าไม่แน่ใจ task type: อ่าน AI_CONTEXT.md ก่อนเสมอ"

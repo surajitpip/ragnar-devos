@@ -1,0 +1,66 @@
+# .ragnar/config.yaml — Project Identity & Stack Configuration
+# AI Agent: อ่านไฟล์นี้เพื่อเข้าใจ project context
+
+project:
+  name: ragnar-devos
+  display_name: "Ragnar DevOS"
+  description: "AI-native Engineering Operating System"
+  type: governance-system          # governance-system | web-app | api | data-pipeline | etc.
+  phase: v1-starter-kit
+  owner: oak                       # project owner alias
+
+stack:
+  runtime: python
+  runtime_version: "3.12"
+  package_manager: uv
+  framework: dash
+  database: duckdb
+  visualization: plotly
+  app_server: gunicorn
+  containerization: docker
+
+paths:
+  docs: docs/
+  ai_context: docs/AI_CONTEXT.md   # ไฟล์ที่ AI ต้องอ่านก่อนเสมอ
+  governance: .ragnar/
+  routing: .ragnar/routing.yaml
+  policies: .ragnar/policies/
+  templates: .ragnar/templates/
+  agents: .ragnar/agents/
+  checks: .ragnar/checks/
+  packs: packs/
+  scripts: scripts/
+
+conventions:
+  language_policy:
+    code: english                  # variables, functions, class names
+    comments: thai                 # inline comments, docstrings
+    docs_body: thai                # markdown doc content
+    headers: english               # section headers, technical terms
+    commits: english               # commit messages
+
+  branch_prefixes:
+    - feature/
+    - fix/
+    - refactor/
+    - chore/
+    - docs/
+
+  commit_types:
+    - feat
+    - fix
+    - refactor
+    - docs
+    - chore
+    - test
+    - perf
+
+  protected_branches:
+    - main
+    - master
+
+ai_context:
+  core_brain: docs/AI_CONTEXT.md
+  routing_config: .ragnar/routing.yaml
+  policies_config: .ragnar/policies/global.yaml
+  agent_common: .ragnar/agents/common.md

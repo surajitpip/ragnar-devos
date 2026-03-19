@@ -1,0 +1,35 @@
+[project]
+name = "python-dash-uv"
+version = "1.0.0"
+description = "Python Dash + DuckDB starter app"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dash>=2.18",
+    "plotly>=5.24",
+    "duckdb>=1.1",
+    "pandas>=2.2",
+    "gunicorn>=23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

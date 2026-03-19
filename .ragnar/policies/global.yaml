@@ -1,0 +1,98 @@
+# .ragnar/policies/global.yaml — Global AI Rules
+# AI Agent: ทำตาม rules เหล่านี้ในทุก task เสมอ
+
+version: "1"
+
+policies:
+
+  - id: read_ai_context_first
+    severity: error
+    description: "อ่าน docs/AI_CONTEXT.md ก่อนเริ่มทุก task"
+    rule: |
+      ก่อนเริ่มงานทุกประเภท ต้องอ่าน docs/AI_CONTEXT.md เสมอ
+      เพื่อเข้าใจ project context, conventions, และ current state
+    applies_to: all
+
+  - id: no_hardcoded_secrets
+    severity: error
+    description: "ห้าม hardcode secrets, tokens, passwords, หรือ credentials ใน code"
+    rule: |
+      ห้ามใส่ค่า secrets ตรงๆ ใน source code เด็ดขาด
+      ใช้ environment variables เสมอ (os.environ, os.getenv)
+      ถ้าต้องการ secret ใหม่: เพิ่มใน .env.example (พร้อม placeholder) แล้วอธิบายให้ user ทราบ
+    applies_to: all
+    examples:
+      bad: 'API_KEY = "sk-abc123"'
+      good: 'API_KEY = os.environ["API_KEY"]'
+
+  - id: no_force_push_main
+    severity: error
+    description: "ห้าม force-push branch main หรือ master"
+    rule: |
+      ห้ามแนะนำหรือรัน: git push --force (บน main/master)
+      ถ้าต้องการ fix: ใช้ git revert หรือ new commit แทน
+    applies_to: git_operations
+
+  - id: no_destructive_data_ops
+    severity: error
+    description: "ห้าม drop/delete/truncate data โดยไม่ confirm กับ user ก่อน"
+    rule: |
+      Operations ที่ทำลาย data (DROP TABLE, DELETE *, TRUNCATE) ต้อง:
+      1. แสดง SQL ที่จะรันให้ user เห็นก่อน
+      2. ขอ confirmation จาก user
+      3. แนะนำให้ backup ก่อนถ้าเป็น production data
+    applies_to: database_operations
+
+  - id: changelog_on_code_change
+    severity: warn
+    description: "code change → ต้องมี CHANGELOG entry"
+    rule: |
+      เมื่อ implement feature, fix bug, หรือ refactor:
+      ต้องเพิ่ม entry ใน docs/CHANGELOG.md ด้วยเสมอ
+      ใช้ template: .ragnar/templates/changelog-entry.md
+    applies_to: [feature, bugfix, refactor]
+
+  - id: runbook_on_dockerfile_change
+    severity: warn
+    description: "Dockerfile/docker-compose change → ต้อง update RUNBOOK"
+    rule: |
+      เมื่อแก้ Dockerfile หรือ docker-compose*.yml:
+      ต้อง review และ update docs/RUNBOOK.md ด้วย
+      โดยเฉพาะ: build steps, environment variables, port mappings
+    applies_to: infrastructure
+
+  - id: adr_on_architecture_change
+    severity: warn
+    description: "architecture change → ต้องมี Decision Record"
+    rule: |
+      เมื่อเปลี่ยน system architecture, database schema, หรือ major design decisions:
+      ต้องสร้าง ADR ใหม่ใน docs/DECISIONS/ โดยใช้ template .ragnar/templates/decision.md
+      และ update docs/ARCHITECTURE.md ด้วย
+    applies_to: architecture
+
+  - id: follow_routing
+    severity: warn
+    description: "ทำตาม task routing ใน .ragnar/routing.yaml"
+    rule: |
+      ก่อนเริ่มงาน: ดู task type → อ่าน docs ใน routing.yaml[task_type].read
+      หลังงานเสร็จ: update docs ใน routing.yaml[task_type].update
+      รัน checks ใน routing.yaml[task_type].check
+    applies_to: all
+
+  - id: language_policy
+    severity: warn
+    description: "ทำตาม language policy: Thai text, English code"
+    rule: |
+      - Code, variables, function names, commit messages: English
+      - Comments, docstrings, documentation body, user-facing text: Thai
+      - Section headers, technical terms: English
+      ตัวอย่าง: function name = `calculate_revenue`, comment = "# คำนวณรายได้รวม"
+    applies_to: all
+
+  - id: env_example_on_new_env_var
+    severity: warn
+    description: "เพิ่ม env var ใน code → ต้อง update .env.example"
+    rule: |
+      เมื่อใช้ os.environ หรือ os.getenv ใน code:
+      ต้อง update .env.example พร้อม placeholder value และ comment อธิบาย
+    applies_to: env_change

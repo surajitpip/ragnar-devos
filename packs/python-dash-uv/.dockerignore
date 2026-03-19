@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+.venv/
+venv/
+.uv/
+
+# Development
+.env
+.env.*
+!.env.example
+tests/
+*.test.py
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (จะ mount ตอน run)
+data/
+*.duckdb
+
+# Logs
+*.log
+logs/
+
+# Git
+.git/
+.gitignore

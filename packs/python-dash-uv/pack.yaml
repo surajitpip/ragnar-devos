@@ -1,0 +1,41 @@
+# pack.yaml — Python Dash uv Pack Metadata
+
+name: python-dash-uv
+version: "1.0.0"
+description: "Python 3.12 + Dash + DuckDB + uv starter pack"
+
+stack:
+  runtime: python
+  runtime_version: "3.12"
+  package_manager: uv
+  framework: dash
+  database: duckdb
+  visualization: plotly
+  app_server: gunicorn
+
+dependencies:
+  production:
+    - dash
+    - plotly
+    - duckdb
+    - pandas
+    - gunicorn
+  development:
+    - pytest
+    - ruff
+
+ports:
+  - 8050
+
+entry_point: app/main.py
+
+commands:
+  install: "uv sync"
+  run: "uv run python app/main.py"
+  run_prod: "uv run gunicorn app.main:server -b 0.0.0.0:8050"
+  lint: "uv run ruff check app/"
+  test: "uv run pytest"
+
+docker:
+  build: "docker build -t python-dash-uv ."
+  run: "docker run -p 8050:8050 --env-file .env python-dash-uv"
